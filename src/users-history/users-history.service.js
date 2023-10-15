@@ -1,6 +1,6 @@
 const { pool } = require("../database.js");
-const { CreateUserHistoryDto } = require("./dto/create-user.dto.js");
-const {UserHistoryEntity} = require("./entities/user-history-item.entity");
+const { UserHistoryEntity } = require("./entities/user-history-item.entity");
+const { HistoryEntity } = require("./entities/history.entity");
 
 const createUserHistory = async (user, res) => {
     const userAsHistoryItem = new UserHistoryEntity(user);
@@ -45,26 +45,24 @@ const updateUserHistory = async (updateUserData, res) => {
 }
 
 const getHistoryByIdWithFilter = async (req, res) => {
-    const filter = {
-        id: req.query.id,
-        offset: Number.parseInt(req.query.offset) || 1,
-        limit: Number.parseInt(req.query.limit) || 5
-    };
+    const id = Number.parseInt(req.query.id.toString());
+    const offset = Number.parseInt(req.query.offset.toString()) || 1;
+    let limit = Number.parseInt(req.query.limit.toString());
+    limit = limit > 0 ? limit : 5;
     if (
-        filter.id
-        && filter.limit >= 0
-        && filter.offset >= 1
+        id
+        && offset >= 1
+        && limit >= 0
     ) {
-        const sliceString = `${ filter.limit !== 0 ? '[$1:$2]' : '[$1:]' }`;
         const history = (await pool.query(
-            `SELECT history${sliceString} FROM users_history WHERE id = $3`,
-            [filter.offset, filter.offset+filter.limit-1, filter.id]
-        ))?.rows[0]?.history;
+            `SELECT array_length(history, 1), history[$1:$2] FROM users_history WHERE id = $3`,
+            [offset, offset+limit-1, id]
+        ))?.rows[0];
 
-        return res.status(200).json(history || []);
+        return res.status(200).json(history ? new HistoryEntity(history.history, offset, limit, history.array_length) : {});
     }
 
-    res.status(404).json([]);
+    res.status(404).json(false);
 }
 
 module.exports = {
