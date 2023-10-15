@@ -1,9 +1,9 @@
 class UserHistoryItemEntity {
     constructor(obj) {
-       this.name = obj.name || obj.currentName;
-       this.surname = obj.surname || obj.currentSurname;
-       this.city = obj.city || obj.currentCity;
-       this.age = Number(obj.age || obj.currentAge);
+       this.name = obj.name;
+       this.surname = obj.surname;
+       this.city = obj.city;
+       this.age = Number(obj.age);
        this.updatedAt = obj.updatedAt;
     }
 
