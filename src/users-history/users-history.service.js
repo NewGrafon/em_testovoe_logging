@@ -22,7 +22,15 @@ const selectHandledToMessage = async (obj) => {
 
 const createUserHistory = async (user) => {
     const userAsHistoryItem = new UserHistoryEntity(user);
-    const userValue = [user.id, userAsHistoryItem.name, userAsHistoryItem.surname, userAsHistoryItem.city, userAsHistoryItem.age, [userAsHistoryItem], user.updatedAt];
+    const userValue = [
+        user.id,
+        userAsHistoryItem.name,
+        userAsHistoryItem.surname,
+        userAsHistoryItem.city,
+        userAsHistoryItem.age,
+        [userAsHistoryItem],
+        user.updatedAt
+    ];
     pool.query(
         'INSERT INTO users_history (id, currentName, currentSurname, currentCity, currentAge, history, updatedAt) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
         userValue,
@@ -44,7 +52,15 @@ const updateUserHistory = async (updateUserData) => {
     )).rows[0].history;
     const userAsHistoryItem = new UserHistoryEntity(updateUserData);
     userHistory.push(userAsHistoryItem);
-    const userValue = [userAsHistoryItem.name, userAsHistoryItem.surname, userAsHistoryItem.city, userAsHistoryItem.age, userHistory, userAsHistoryItem.updatedAt, updateUserData.id];
+    const userValue = [
+        userAsHistoryItem.name,
+        userAsHistoryItem.surname,
+        userAsHistoryItem.city,
+        userAsHistoryItem.age,
+        userHistory,
+        userAsHistoryItem.updatedAt,
+        updateUserData.id
+    ];
     pool.query(
         `UPDATE users_history 
             SET currentName = $1, currentSurname = $2, currentCity = $3, currentAge = $4, history = $5, updatedAt = $6 
@@ -64,7 +80,8 @@ const updateUserHistory = async (updateUserData) => {
 
 const getHistoryByIdWithFilter = async (req, res) => {
     const id = Number.parseInt(req.query.id.toString());
-    const offset = Number.parseInt(req.query.offset.toString()) || 1;
+    let offset = Number.parseInt(req.query.offset.toString()) || 1;
+    offset = offset > 1 ? offset : 1;
     let limit = Number.parseInt(req.query.limit.toString());
     limit = limit > 0 ? limit : 5;
     if (
