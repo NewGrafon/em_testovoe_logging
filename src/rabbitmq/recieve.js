@@ -23,11 +23,10 @@ function RMQ_ReceiveMessage(queue) {
             );
             channel.consume(
                 queue,
-                async (msg) => {
+                (msg) => {
                     const obj = JSON.parse(msg.content.toString());
                     console.log(' [x] Received "%s"', obj);
-
-                    console.log(' [x] Log result: "%s"', await selectHandledToMessage(obj));
+                    selectHandledToMessage(obj);
                 },
                 {
                     noAck: true,
