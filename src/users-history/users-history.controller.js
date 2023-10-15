@@ -3,7 +3,8 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 const { createUserHistory, updateUserHistory, getHistoryByIdWithFilter } = require('./users-history.service.js');
 const {pool} = require("../database");
-const {CreateUserHistoryDto} = require("./dto/create-user-history.dto");
+const {CreateUserHistoryDto} = require("./dto/create-user.dto");
+const {UpdateUserHistoryDto} = require("./dto/update-user.dto");
 
 router.use(bodyParser.urlencoded({extended : false}));
 router.use(bodyParser.json());
@@ -15,10 +16,10 @@ router.post('/', async (req, res) => {
 
         if (result.rows.length > 0) {
             console.log('updating...');
-            updateUserHistory(req, res);
+            updateUserHistory(new UpdateUserHistoryDto(req.body), res);
         } else {
             console.log('creating...');
-            createUserHistory(req, res);
+            createUserHistory(new CreateUserHistoryDto(req.body), res);
         }
     });
 
