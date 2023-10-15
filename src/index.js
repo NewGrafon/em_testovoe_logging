@@ -5,7 +5,7 @@ const path = require("node:path");
 const usersRouter = require("./users-history/users-history.controller.js");
 const bodyParser = require('body-parser');
 const { RMQ_ReceiveMessage } = require("./rabbitmq/recieve");
-const {pool, initTable} = require("./database");
+const { initTable } = require("./database");
 
 const app = express();
 
