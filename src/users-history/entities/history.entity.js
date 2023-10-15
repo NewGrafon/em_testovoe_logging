@@ -8,6 +8,10 @@ class HistoryEntity {
         if (this.countAfterLimit < 0) {
             this.countAfterLimit = 0;
         }
+        this.countBeforeOffset = allCount - this.countAfterLimit - array.length;
+        if (this.countBeforeOffset < 0) {
+            this.countBeforeOffset = 0;
+        }
     }
 
     history;
@@ -15,6 +19,7 @@ class HistoryEntity {
     usedOffset;
     usedLimit;
     countAfterLimit;
+    countBeforeOffset;
 }
 
 module.exports = {
