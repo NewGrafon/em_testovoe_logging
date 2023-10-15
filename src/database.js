@@ -12,15 +12,15 @@ const pool = new Pool({
 });
 
 async function initTable() {
-    if (!(await pool.query(`SELECT EXISTS (
+    const tableExists = (await pool.query(`SELECT EXISTS (
                                 SELECT FROM 
                                     pg_tables
                                 WHERE 
                                     schemaname = 'public' AND 
                                     tablename  = 'users_history'
-                                );`
-        )
-    )) {
+                                )`)).rows[0].exists;
+
+    if (!tableExists) {
         pool.query(
             `CREATE TABLE
                     users_history(
@@ -29,7 +29,7 @@ async function initTable() {
                     currentSurname varchar NOT NULL,
                     currentCity varchar NOT NULL,
                     currentAge integer NOT NULL,
-                    history json[],
+                    history JSON[] NOT NULL,
                     updatedAt timestamp NOT NULL
                     )
                 `);
