@@ -1,8 +1,26 @@
 const { pool } = require("../database.js");
 const { UserHistoryEntity } = require("./entities/user-history-item.entity");
 const { HistoryEntity } = require("./entities/history.entity");
+const { UpdateUserHistoryDto } = require("./dto/update-user.dto");
+const { CreateUserHistoryDto } = require("./dto/create-user.dto");
 
-const createUserHistory = async (user, res) => {
+const selectHandledToMessage = async (obj) => {
+    pool.query('SELECT id FROM users_history WHERE id = $1', [obj.id], (err, result) => {
+        if (err) {
+            throw err;
+        }
+
+        if (result.rows.length > 0) {
+            console.log('updating...');
+            updateUserHistory(new UpdateUserHistoryDto(obj));
+        } else {
+            console.log('creating...');
+            createUserHistory(new CreateUserHistoryDto(obj));
+        }
+    });
+}
+
+const createUserHistory = async (user) => {
     const userAsHistoryItem = new UserHistoryEntity(user);
     const userValue = [user.id, userAsHistoryItem.name, userAsHistoryItem.surname, userAsHistoryItem.city, userAsHistoryItem.age, [userAsHistoryItem], user.updatedAt];
     pool.query(
@@ -11,15 +29,15 @@ const createUserHistory = async (user, res) => {
         (err, result) => {
             if (err) {
                 console.error(err);
-                return res.status(500).json(false);
+                return false;
             }
             console.log('create was successful!');
-            res.status(200).json(result.rows[0]);
+            return result.rows[0];
         }
     );
 }
 
-const updateUserHistory = async (updateUserData, res) => {
+const updateUserHistory = async (updateUserData) => {
     const userHistory = (await pool.query(
         `SELECT history FROM users_history WHERE id = $1`,
         [updateUserData.id]
@@ -36,10 +54,10 @@ const updateUserHistory = async (updateUserData, res) => {
         (err, result) => {
             if (err) {
                 console.error(err);
-                return res.status(500).json(false);
+                return false;
             }
             console.log('update was successful!');
-            res.status(200).json(result.rows[0]);
+            return result.rows[0];
         }
     )
 }
@@ -66,6 +84,7 @@ const getHistoryByIdWithFilter = async (req, res) => {
 }
 
 module.exports = {
+    selectHandledToMessage,
     createUserHistory,
     updateUserHistory,
     getHistoryByIdWithFilter
